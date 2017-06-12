@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:context="http://www.springframework.org/schema/context" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-current.xsd">
+    <http:listener-config name="HTTP_Listener_Configuration" host="0.0.0.0" port="8081" doc:name="HTTP Listener Configuration"/>
+    <http:request-config name="HTTP_Request_Configuration" host="localhost" port="8088" basePath="/mockOTWebServiceSoap" doc:name="HTTP Request Configuration"/>
+    <http:request-builder name="Request_Builder" doc:name="Request Builder">
+        <http:header headerName="SoapAction" value="http://www.omninet.de/OtWebSvc/v1/ModifyObject"/>
+        <http:header headerName="Authorization" value="Basic #[org.mule.util.Base64.encodeBytes(&quot;myUser:myPass&quot;.getBytes())]"/>
+        <http:header headerName="Content-Type" value="application/soap+xml;charset=UTF-8"/>
+    </http:request-builder>
+</mule>

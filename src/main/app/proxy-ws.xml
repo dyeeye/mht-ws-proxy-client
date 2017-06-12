@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:mulexml="http://www.mulesoft.org/schema/mule/xml" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:cxf="http://www.mulesoft.org/schema/mule/cxf" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/cxf http://www.mulesoft.org/schema/mule/cxf/current/mule-cxf.xsd
+http://www.mulesoft.org/schema/mule/xml http://www.mulesoft.org/schema/mule/xml/current/mule-xml.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
+    <flow name="proxy-wsFlow">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/users" allowedMethods="GET" doc:name="HTTP"/>
+        <set-payload value="&lt;v1:GetObjectList xmlns:v1=&quot;http://www.omninet.de/OtWebSvc/v1&quot;&gt;
+         &lt;v1:Get folderPath=&quot;Users&quot;&gt;
+         &lt;/v1:Get&gt;
+&lt;/v1:GetObjectList&gt;" doc:name="Set Payload"/>
+        <flow-ref name="proxy-wsSub_Flow" doc:name="proxy-wsSub_Flow"/>
+        <mulexml:dom-to-xml-transformer doc:name="DOM to XML"/>
+        <choice doc:name="Choice">
+            <when expression="#[xpath3('//*:GetObjectListResult/@success')=='false']">
+                <set-payload value="{
+	&quot;status&quot;: &quot;failure&quot;,
+	&quot;message&quot;:&quot; &quot;please try again later&quot;
+}" doc:name="Set Error Msg Payload"/>
+            </when>
+            <otherwise>
+                <set-payload value="{
+	&quot;status&quot;: &quot;success&quot;,
+	&quot;body&quot;: {
+	}
+}" doc:name="Set Payload"/>
+            </otherwise>
+        </choice>
+    </flow>
+    <sub-flow name="proxy-wsSub_Flow">
+        <cxf:proxy-client payload="body" doc:name="CXF"/>
+        <http:request config-ref="HTTP_Request_Configuration" path="/" method="POST" doc:name="HTTP">
+            <http:request-builder>
+                <http:builder ref="Request_Builder"/>
+            </http:request-builder>
+        </http:request>
+    </sub-flow>
+</mule>
