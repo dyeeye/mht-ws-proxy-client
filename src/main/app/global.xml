@@ -8,10 +8,11 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
 http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-current.xsd">
     <http:listener-config name="HTTP_Listener_Configuration" host="0.0.0.0" port="8081" doc:name="HTTP Listener Configuration"/>
-    <http:request-config name="HTTP_Request_Configuration" host="localhost" port="8088" basePath="/mockOTWebServiceSoap" doc:name="HTTP Request Configuration"/>
+    <http:request-config name="HTTP_Request_Configuration" host="localhost" port="8088" basePath="/mockOTWebServiceSoap" doc:name="HTTP Request Configuration">
+        <http:basic-authentication username="myUser" password="myPass" preemptive="true"/>
+    </http:request-config>
     <http:request-builder name="Request_Builder" doc:name="Request Builder">
         <http:header headerName="SoapAction" value="http://www.omninet.de/OtWebSvc/v1/ModifyObject"/>
-        <http:header headerName="Authorization" value="Basic #[org.mule.util.Base64.encodeBytes(&quot;myUser:myPass&quot;.getBytes())]"/>
         <http:header headerName="Content-Type" value="application/soap+xml;charset=UTF-8"/>
     </http:request-builder>
 </mule>
